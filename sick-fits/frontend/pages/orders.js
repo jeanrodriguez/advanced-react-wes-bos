@@ -4,4 +4,4 @@ const OrdersPage = () => {
     return ( <h1> My ORder Page</h1> );
 }
  
-export default OrderPage;
+export default OrdersPage;
