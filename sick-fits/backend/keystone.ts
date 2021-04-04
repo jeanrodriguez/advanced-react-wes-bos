@@ -1,11 +1,15 @@
 import { createAuth } from '@keystone-next/auth';
 import { config, createSchema } from '@keystone-next/keystone/schema';
 import { User } from './schemas/User';
+import { Product } from './schemas/Products';
+import { ProductImage } from './schemas/ProductImage';
+
 import 'dotenv/config';
 import {
   withItemData,
   statelessSessions,
 } from '@keystone-next/keystone/session';
+import { insertSeedData } from './seed-data';
 
 const databaseURL =
   process.env.DATABASE_URL || 'mongodb://localhost/keystone-sick-fits-tutorial';
@@ -14,6 +18,9 @@ const sessionConfig = {
   maxAge: 60 * 60 * 24 * 360, // How long they stay signed in?
   secret: process.env.COOKIE_SECRET,
 };
+
+// listKey: 'User', // witch schema will be responsable
+// identityField: 'email', // witch field in User schema will identifier
 
 const { withAuth } = createAuth({
   listKey: 'User',
@@ -38,10 +45,17 @@ export default withAuth(
       adapter: 'mongoose',
       url: databaseURL,
       // TODO: Add data seeding here
+      async onConnect(keystone) {
+        if (process.argv.includes('--seed-data')) {
+          await insertSeedData(keystone);
+        }
+      },
     },
     lists: createSchema({
       // Schema items go in here
       User,
+      Product,
+      ProductImage,
     }),
     ui: {
       // Show the UI only for poeple who pass this test
